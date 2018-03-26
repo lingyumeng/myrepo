@@ -124,19 +124,50 @@ Notes:
 Notes:
 
 ```{r Conditional Means}
-#library(dplyr)
+library(dplyr)
 
 age_groups <- group_by(pf, age)
-summary(age_groups, 
+pf.fc_by_age <- summarise(age_groups, 
         friend_count_mean = mean(friend_count),
         friend_count_median = median(friend_count),
         n = n())
+
+pf.fc_by_age <- arrange(pf.fc_by_age, age)
+
+head(pf.fc_by_age)
 ```
+```{r}
+pf.fc_by_age <- pf %>% 
+  group_by(age) %>%
+  summarise(friend_count_mean = mean(friend_count),
+            friend_count_median = median(friend_count),
+            n = n()) %>%
+  arrange(age)
+
+
+head(pf.fc_by_age, 20)
+```
+
+
 
 Create your plot!
 
 ```{r Conditional Means Plot}
+library(gridExtra)
+p1 = ggplot(aes(x = age, y=friend_count_mean), data = pf.fc_by_age) +
+  geom_line() +
+  xlim(13, 90)
 
+p2 = ggplot(aes(x = age, y=friend_count_median), data = pf.fc_by_age) +
+  geom_line() +
+  xlim(13, 90)
+
+
+p3 = ggplot(aes(x = age, y=n), data = pf.fc_by_age) +
+  geom_line() +
+  xlim(13, 90)
+
+grid.arrange(p1, p2, p3, ncol = 2)
 ```
 
 ***
