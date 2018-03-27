@@ -176,7 +176,42 @@ grid.arrange(p1, p2, p3, ncol = 2)
 Notes:
 
 ```{r Overlaying Summaries with Raw Data}
+ggplot(aes(x=age, y=friend_count), data=pf) +
+  xlim(13, 90) +
+  geom_point(alpha=0.05, 
+             position = position_jitter(h = 0))+
+  coord_trans(y = 'sqrt')
 
+ggplot(aes(x=age, y=friend_count), data=pf) +
+  xlim(13, 90) +
+  geom_point(alpha=0.05, 
+             position = position_jitter(h = 0),
+             color = I('#23cd80')) +
+  coord_trans(y = 'sqrt')
+
+ggplot(aes(x=age, y=friend_count), data=pf) +
+  xlim(13, 90) +
+  geom_point(alpha=0.05, 
+             position = position_jitter(h = 0),
+             color = 'orange') +
+  coord_trans(y = 'sqrt')
+```
+```{r}
+ggplot(aes(x=age, y=friend_count), data=pf) +
+  geom_point(alpha=0.05, 
+             position = position_jitter(h = 0),
+             color = 'orange') +
+  coord_cartesian(xlim = c(13, 70), ylim = c(0, 1000)) +
+  geom_line(stat = 'summary', fun.y=mean) +
+  geom_line(stat = 'summary', 
+            fun.y=quantile, 
+            fun.args = list(probs = 0.1),
+            linetype = 2, color = 'blue') +
+  geom_line(stat = 'summary',
+            fun.y = quantile, fun.args = list(probs = 0.9),
+            linetype = 1, color = 'red') +
+  geom_line(stat = 'summary', fun.y = median,
+            linetype = 4, color = 'green')
 ```
 
 #### What are some of your observations of the plot?
@@ -195,7 +230,21 @@ Notes:
 Notes:
 
 ```{r Correlation}
+?cor.test
 
+
+age_mean = mean(pf$age)
+friend_count_mean <- mean(pf$friend_count)
+
+age_sd <- sd(pf$age)
+friend_count_sd <- sd(pf$friend_count)
+
+correlation = sum((pf$age - age_mean) * (pf$friend_count - friend_count_mean)) / (length(pf$age) * age_sd * friend_count_sd)
+print(correlation)
+
+correlation1 = cor.test(pf$age, pf$friend_count)
+
+print(correlation1)
 ```
 
 Look up the documentation for the cor.test function.
@@ -209,7 +258,7 @@ Response:
 Notes:
 
 ```{r Correlation on Subsets}
-with(                 , cor.test(age, friend_count))
+with( pf                , cor.test(age, friend_count))
 ```
 
 ***
