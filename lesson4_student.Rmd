@@ -251,6 +251,9 @@ Look up the documentation for the cor.test function.
 
 What's the correlation between age and friend count? Round to three decimal places.
 Response:
+```{r}
+with(pf,cor.test(age, friend_count))
+```
 
 ***
 
@@ -258,13 +261,20 @@ Response:
 Notes:
 
 ```{r Correlation on Subsets}
-with( pf                , cor.test(age, friend_count))
+with(subset(pf, pf$age <= 70)                , cor.test(age, friend_count))
+
+with(subset(pf, age <= 70), cor.test(age, friend_count, 
+                                     method = 'pearson'))
 ```
 
 ***
 
 ### Correlation Methods
 Notes:
+```{r}
+with(subset(pf, pf$age >=70), cor.test(age, friend_count),
+     method = 'spearmon')
+```
 
 ***
 
@@ -272,6 +282,11 @@ Notes:
 Notes:
 
 ```{r}
+names(pf)
+ggplot(aes(x = www_likes_received, y = likes_received), data = pf) +
+  geom_point(alpha=0.05) +
+  xlim(0, 5000) +
+  ylim(0, 5000)
 
 ```
 
@@ -281,13 +296,17 @@ Notes:
 Notes:
 
 ```{r Strong Correlations}
-
+ggplot(aes(x = www_likes_received, y=likes_received), data = pf) +
+  geom_point() +
+  xlim(0, quantile(pf$www_likes_received, 0.95)) +
+  ylim(0, quantile(pf$likes_received, 0.95)) +
+  geom_smooth(method = 'lm', color = 'red')
 ```
 
 What's the correlation betwen the two variables? Include the top 5% of values for the variable in the calculation and round to 3 decimal places.
 
 ```{r Correlation Calcuation}
-
+with(pf, cor.test(pf$www_likes_received, pf$likes_received))
 ```
 
 Response:
