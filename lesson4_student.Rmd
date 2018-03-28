@@ -272,7 +272,7 @@ with(subset(pf, age <= 70), cor.test(age, friend_count,
 ### Correlation Methods
 Notes:
 ```{r}
-with(subset(pf, pf$age >=70), cor.test(age, friend_count),
+with(subset(pf, pf$age <= 70), cor.test(age, friend_count),
      method = 'spearmon')
 ```
 
@@ -322,14 +322,23 @@ Notes:
 Notes:
 
 ```{r More Caution With Correlation}
-install.packages('alr3')
+#install.packages('alr3')
 library(alr3)
+data("Mitchell")
+?Mitchell
+names(Mitchell)
+head(Mitchell)
+
+utils::View(Mitchell)
 ```
 
 Create your plot!
 
 ```{r Temp vs Month}
+ggplot(aes(x = Month, y = Temp), data = Mitchell) +
+  geom_point()
 
+qplot(data = Mitchell, Month, Temp)
 ```
 
 ***
@@ -341,7 +350,7 @@ b. What is the actual correlation of the two variables?
 (Round to the thousandths place)
 
 ```{r Noisy Scatterplots}
-
+cor.test(Mitchell$Month, Mitchell$Temp)
 ```
 
 ***
