@@ -359,7 +359,11 @@ cor.test(Mitchell$Month, Mitchell$Temp)
 Notes:
 
 ```{r Making Sense of Data}
-
+range(Mitchell$Month)
+ggplot(aes(x=Month, y=Temp), data = Mitchell) +
+  geom_point() +
+  scale_x_discrete(breaks = seq(0, 203, 12)) +
+  scale_x_continuous(breaks = seq(0,203,12))
 ```
 
 ***
@@ -367,10 +371,29 @@ Notes:
 ### A New Perspective
 
 What do you notice?
-Response:
+Response:一个循环的图形 类似正弦或者余弦
 
 Watch the solution video and check out the Instructor Notes!
 Notes:
+```{r}
+ggplot(aes(x=(Month%%12),y=Temp),data=Mitchell)+ 
+  geom_point() +
+  scale_x_discrete(breaks=seq(0,11, 1)) +
+  scale_x_continuous(breaks = seq(0,11,1))
+```
+### 还可以使用其他的关联度量检测这一点。energy 包中的 dcor.ttest() 函数对两个变量的独立性执行非参数检验
+
+可以通过其他例子了解 dcor.ttest 和 cor.test 的区别，例如：
+
+```{r}
+#install.packages('energy')
+library('energy')
+x <- seq(0, 4*pi, pi/20)
+y <- cos(x)
+qplot(x = x, y = y)
+dcor.ttest(x, y)
+```
+
 
 ***
 
@@ -378,6 +401,10 @@ Notes:
 Notes:
 
 ```{r Understanding Noise: Age to Age Months}
+ggplot(aes(x=age, y=friend_count_mean), data = pf.fc_by_age) +
+  geom_line()
+
+head(pf.fc_by_age, 10)
 
 ```
 
@@ -386,6 +413,11 @@ Notes:
 ### Age with Months Means
 
 ```{r Age with Months Means}
+pf$age_with_months = pf$age + (1 - pf$dob_month/12)
+View(pf$age_with_months)
+pf$age_with_months = with(pf, age + (1-dob_month/12))
+View(pf$age_with_months)
+
 
 ```
 
