@@ -1,0 +1,261 @@
+---
+title: "lessson 4 exercise"
+output: html_notebook
+---
+
+#价格与 x
+ In this problem set, you'll continue
+ to explore the diamonds data set.
+
+ Your first task is to create a
+ scatterplot of price vs x.
+ using the ggplot syntax.
+
+ This assignment is not graded and
+ will be marked as correct when you submit.
+
+ ENTER YOUR CODE BELOW THIS LINE
+ ===========================================
+```{r}
+library(ggplot2)
+?diamonds
+head(diamonds)
+
+ggplot(aes(x = x, y = price), data = diamonds) +
+  geom_point()
+
+
+ggplot(aes(x = x, y = price), data = diamonds) +
+  geom_point(alpha=0.05) +
+  xlim(3, 9)
+```
+
+# 相关性
+
+```{r}
+# what is the correlation between price and x? 
+cor.test(x = diamonds$x, y = diamonds$price, data = diamonds)
+# what is the correlation between price and y? 
+cor.test(x = diamonds$y, y = diamonds$price, data = diamonds)
+# what is the correlation between price and z?
+cor.test(x = diamonds$z, y = diamonds$price, data = diamonds)
+```
+# 价格与深度
+ Create a simple scatter plot of price vs depth.
+
+ This assignment is not graded and
+ will be marked as correct when you submit.
+
+ ENTER YOUR CODE BELOW THIS LINE
+ ==================================================
+```{r}
+ggplot(aes(x = depth, y = price), data = diamonds) +
+  geom_point()
+
+```
+# 调整 - 价格与深度
+
+ Change the code to make the transparency of the
+ points to be 1/100 of what they are now and mark
+ the x-axis every 2 units. See the instructor notes
+ for two hints.
+```{r}
+range(diamonds$depth)
+ggplot(aes(x = depth, y = price), data = diamonds) +
+  geom_point(alpha = 0.01) +
+  scale_x_continuous(breaks = seq(50,74,2), limits = c(50, 74))
+```
+
+# 典型深度范围
+(59,64)
+
+# 相关性 - 价格与深度
+```{r}
+cor.test(x=diamonds$depth, y=diamonds$price)
+```
+
+
+# 价格与克拉
+ Create a scatterplot of price vs carat
+  and omit the top 1% of price and carat
+ values.
+
+```{r}
+names(diamonds)
+summary(diamonds$carat)
+quantile(diamonds$carat, c(.01,.99))
+ggplot(aes(x=carat, y=price), data = diamonds) +
+  geom_point(alpha=0.05) +
+  scale_x_continuous(limits = c(0, quantile(diamonds$carat, 0.99))) +
+  scale_y_continuous(limits = c(0, quantile(diamonds$price, 0.99))) 
+```
+
+# 价格与体积
+ Create a scatterplot of price vs. volume (x * y * z).
+ This is a very rough approximation for a diamond's volume.
+
+ Create a new variable for volume in the diamonds data frame.
+ This will be useful in a later exercise.
+
+```{r}
+diamonds$volume <- diamonds$x * diamonds$y * diamonds$z
+
+ggplot(aes(x = volume, y = price), data = diamonds) +
+  geom_point() 
+```
+# 一些diamonds volume等于0
+
+Did you notice some outliers? Some volumes are 0! There's an expensive diamond with a volume near 4000, and a cheaper diamond with a volume near 900.
+
+
+You can find out how many diamonds have 0 volume by using count(diamonds$volume == 0). The count() function comes with the plyr package.
+
+
+Note: If you ran the count function from plyr, you need to run this command in R to unload the plyr package.
+detach("package:plyr", unload=TRUE)
+The plyr package will conflict with the dplyr package in later exercises.
+
+
+Depending on your investigation, it may or may not be important for you to understand how outliers, like these, came to be in your data.
+
+```{r}
+summary(diamonds$volume)
+
+Zerodiamonds <- subset(diamonds, diamonds$volume == 0)
+#View(Zerodiamonds)
+count(diamonds, diamonds$volume == 0)
+
+```
+
+# 子集相关性
+提示 1：向钻石数据框中添加一个体积变量很有帮助。你应该排除体积大于或等于 800 的钻石。而且，还要排除体积为 0 的钻石。当你子集化原始数据框时，在两个条件之间使用 & 符号。 
+
+提示 2：在这些条件下子集化钻石数据框，并且将它保存到另一个变量中。在 cor() 函数中使用该数据框。
+
+```{r}
+diamonds.sub <- subset(diamonds, diamonds$volume != 0 & diamonds$volume < 800)
+cor.test(diamonds.sub$volume, diamonds.sub$price)
+```
+# 调整 - 价格与体积
+
+ Subset the data to exclude diamonds with a volume
+ greater than or equal to 800. Also, exclude diamonds
+ with a volume of 0. Adjust the transparency of the
+ points and add a linear model to the plot. (See the
+ Instructor Notes or look up the documentation of
+ geom_smooth() for more details about smoothers.)
+
+ We encourage you to think about this next question and
+ to post your thoughts in the discussion section.
+
+ Do you think this would be a useful model to estimate
+ the price of diamonds? Why or why not?
+ 
+```{r}
+ggplot(aes(x = volume, y = price), data = diamonds.sub) +
+  geom_point(alpha = 0.05) +
+  geom_smooth(method = 'lm', color = 'green')
+```
+ 
+# 平均价格 - 净度
+
+ Use the function dplyr package
+ to create a new data frame containing
+ info on diamonds by clarity.
+
+ Name the data frame diamondsByClarity
+
+ The data frame should contain the following
+ variables in this order.
+
+       (1) mean_price
+       (2) median_price
+       (3) min_price
+       (4) max_price
+       (5) n
+
+ where n is the number of diamonds in each
+ level of clarity.
+
+ This assignment WILL BE automatically
+ graded!
+
+ DO NOT ALTER THE NEXT THREE LINES OF CODE.
+ ======================================================
+
+注意：如果你在进行此练习之前使用了 plyr 包中的 count() 函数，则需要运行以下命令卸载 plyr 包。 
+detach("package:plyr", unload=TRUE) 
+dplyr包。
+
+重要事项！请注意：在较新版本的 dplyr (0.3.x+) 中，语法 %.% 已被弃用且替换为 %>%。课程视频中使用的是 %.%，但这会产生警告消息。如果您在回答中使用链接运算符，您应该使用 %>%。
+
+另一警告：0.4.0 版本的 dplyr 在汇总层上使用中间值函数时有一个错误，具体取决于被汇总的数据性质。你可能需要将数据转换为数值型（浮点型），以获得期望的结果，比如：median(as.numeric(var))。
+
+```{r}
+library(dplyr)
+diamondsByClarity <- diamonds %>% 
+  group_by(clarity) %>% 
+  summarise(mean_price = mean(price),
+            median_price = median(as.numeric(price)),
+            min_price = min(price),
+            max_price = max(price),
+            n = n())
+  
+diamondsByClarity
+```
+
+# 平均价格柱状图
+
+ We’ve created summary data frames with the mean price
+ by clarity and color. You can run the code in R to
+ verify what data is in the variables diamonds_mp_by_clarity
+ and diamonds_mp_by_color.
+
+ Your task is to write additional code to create two bar plots
+ on one output image using the grid.arrange() function from the package
+ gridExtra.
+
+ This assignment is not graded and
+ will be marked as correct when you submit.
+
+ See the Instructor Notes for more info on bar charts
+ and for a hint on this task.
+
+ DO NOT DELETE THE LINES OF CODE BELOW
+
+```{r}
+library(gridExtra)
+diamonds_by_clarity <- group_by(diamonds, clarity)
+diamonds_mp_by_clarity <- summarise(diamonds_by_clarity, mean_price = mean(price))
+diamonds_mp_by_clarity <- arrange(diamonds_mp_by_clarity, clarity)
+
+
+diamonds_by_color <- group_by(diamonds, color)
+diamonds_mp_by_color <- summarise(diamonds_by_color, mean_price = mean(price))
+
+
+diamonds_mp_by_clarity$clarity <- factor(diamonds_mp_by_clarity$clarity, levels = c("I1", "SI1", "SI2", "VS1", "VS2", "VVS1", "VVS2", "IF"), ordered = TRUE)
+#diamonds_mp_by_clarity
+#str(diamonds_mp_by_clarity)
+
+diamonds_mp_by_color$color <- factor(diamonds_mp_by_color$color, levels = c("J","I","H","G","F","E","D"), ordered = TRUE)
+
+p1 = ggplot(aes(x = clarity, y = mean_price), data = diamonds_mp_by_clarity) +
+  geom_col(color = 'orange', fill = 'green')
+
+diamonds_mp_by_color
+p2 = ggplot(aes(x = color, y = mean_price), data = diamonds_mp_by_color) +
+  geom_col(color = 'black', fill = 'red')
+
+grid.arrange(p1, p2, ncol = 2)
+
+
+```
+We think something odd is going here. These trends seem to go against our intuition.
+
+
+Mean price tends to decrease as clarity improves. The same can be said for color.
+
+# 重访 Gapminder
+
+
