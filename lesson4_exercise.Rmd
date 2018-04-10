@@ -122,8 +122,9 @@ Depending on your investigation, it may or may not be important for you to under
 summary(diamonds$volume)
 
 Zerodiamonds <- subset(diamonds, diamonds$volume == 0)
+dim(Zerodiamonds)[1]
 #View(Zerodiamonds)
-count(diamonds, diamonds$volume == 0)
+#count(diamonds, diamonds$volume == 0)
 
 ```
 
@@ -257,5 +258,56 @@ We think something odd is going here. These trends seem to go against our intuit
 Mean price tends to decrease as clarity improves. The same can be said for color.
 
 # 重访 Gapminder
+
+```{r}
+
+library(dplyr)
+employs <- read.csv("AboveOf15employ.csv", header=T, check.names=F)
+
+names(employs)
+#utils::View(employs)
+dim(employs)
+
+employs <- dplyr::select(employs, 1:18)
+#utils::View(employs)
+
+long_employs <- tidyr::gather(employs, year, employment_rate, 2:18)
+#utils::View(long_employs)
+str(long_employs)
+
+long_employs <- subset(long_employs, !is.na(employment_rate))
+long_employs$year <- as.numeric(long_employs$year)
+
+empRateByYear <- long_employs %>% 
+  group_by(year) %>% 
+  summarise(mean_rate = mean(employment_rate),
+            median_rate = median(as.numeric(employment_rate)),
+            min_rate = min(employment_rate),
+            max_rate = max(employment_rate),
+            n = n())
+
+  
+
+#View(empRateByYear)
+
+library(gridExtra)
+p1 = ggplot(aes(x = year, y = mean_rate), data = empRateByYear) +
+  geom_line() +
+  scale_x_continuous(breaks = 1991:2007)
+
+p2 = ggplot(aes(x = year, y = median_rate), data = empRateByYear) +
+  geom_line() +
+  scale_x_continuous(breaks = 1991:2007)
+
+p3 = ggplot(aes(x =year, y = min_rate), data = empRateByYear) +
+  geom_line() +
+  scale_x_continuous(breaks = 1991:2007)
+
+p4 = ggplot(aes(x =year, y = max_rate), data = empRateByYear) +
+  geom_line() +
+  scale_x_continuous(breaks = 1991:2007)
+
+grid.arrange(p1, p2, p3, p4, ncol=2)
+```
 
 
