@@ -1,6 +1,8 @@
 ---
 title: "lessson 4 exercise"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 #价格与 x
