@@ -1,4 +1,4 @@
-Lesson 5
+# Lesson 5
 ========================================================
 
 ### Multivariate Data
@@ -10,30 +10,147 @@ Notes:
 Notes:
 
 ***
+## 第三个定性变量
+当我们进行探索性数据分析时,确实可能进入了死胡同
+
+**现在、让我们看看我们是否可以通过添加第三个变量，进一步研究好友数与年龄之间的关系**
+
+以前我们注意到女性用户平均，比男性用户有更多好友数，我们可能怀疑这只是因为女性用户有不同的年龄分布，或者也许年龄条件实际差异较大
+
+按性别绘制的年龄箱线图
+- 现在将使用统计汇总将每个性别的平均值添加到箱线图(用 x 标记的平均值)
+- 使用形状 =4
+
+由于男性用户更年轻些,所以我们可能确实认为 简单地对男性与女性作比较,不足以捕捉其好友数的实质差异
 
 ### Third Qualitative Variable
 Notes:
 
 ```{r Third Qualitative Variable}
+library(ggplot2)
+
+pf <- read.csv('pseudo_facebook.tsv', sep='\t')
+
 ggplot(aes(x = gender, y = age),
-       data = subset(pf, !is.na(gender))) + geom_histogram()
+       data = subset(pf, !is.na(gender))) +
+  geom_boxplot() +
+  stat_summary(fun.y = mean, geom = 'point', shape = 4)
+  
 ```
 
+让我们调查按年龄和性别的中位好友数中间的朋友
+
+```{r}
+ggplot(aes(x = age, y = friend_count), data = subset(pf, !is.na(gender))) +
+  geom_line(aes(color = gender), stat = 'summary', fun.y = median)
+```
+
+请注意，在较新版本的 dplyr (0.3.x+) 中，语法 %.% 已被弃用且替换为 %>%。课程视频中使用的是 %.%，但这会产生警告消息。如果你在回答中使用链接运算符，你应该使用 %>%。
+
+另一警告：0.4.0 版本的 dplyr 在汇总层上使用中间值函数时有一个错误，具体取决于被汇总的数据性质。你可能需要将数据转换为数值型（浮点型），以获得期望的结果，比如：median(as.numeric(var))。
+
+在使用 dplyr 包中的 group_by() 函数时，可以包含多个变量，以分拆数据框。
+
+new_groupings <- group_by(data, variable1, variable2) 
+或 
+using chained commands...使用这个命令： 
+new_data_frame <- data_frame %.% 
+  group_by(variable1, variable2) %.%
+
+summarise() 和 group_by() 的重复使用：汇总函数将自动删除一个级别的分组（它折叠的最后一组）。
+
+------------------------------------------------------------------
+ Write code to create a new data frame,
+> called 'pf.fc_by_age_gender', that contains
+> information on each age AND gender group.
+
+> The data frame should contain the following variables:
+
+>    mean_friend_count,
+>    median_friend_count,
+>    n (the number of users in each age and gender grouping)
+
+- 删除分组(eg: ungroup(gender) )
+- 过滤或划分数据子集(eg: filter(!is.na(gender)) )
+```{r}
+library(dplyr)
+
+pf.fc_by_age_gender <- pf %>%
+  filter(!is.na(gender)) %>%
+  group_by(age, gender) %>%
+  summarise(mean_friend_count = mean(friend_count),
+            median_friend_count = median(friend_count),
+            n = n()) %>%
+  ungroup(gender) %>%
+  arrange(age)
+
+head(pf.fc_by_age_gender, 6)
+
+tail(pf.fc_by_age_gender, 6)
+
+```
+
+
 ***
+## 绘制条件小结
+
+构造图表以显示每个性别随着年龄增加的平均好友数 
+
+> Create a line graph showing the median friend count over the ages for each gender. Be sure to use the data frame you just created, pf.fc_by_age_gender.
 
 ### Plotting Conditional Summaries
 Notes:
 
 ```{r Plotting Conditional Summaries}
-
+ggplot(aes(x = age, y = median_friend_count), data = pf.fc_by_age_gender) +
+  geom_line(aes(color = gender))
 ```
 
-***
+---
+
+> 你的代码应类似于我们首次用来绘制图形的代码，并且无需使用 stat 和 fun.y 参数。 
+ 
+> ggplot(aes(x = age, y = friend_count), 
+>               data = subset(pf, !is.na(gender))) +   geom_line(aes(color = gender), stat = 'summary', fun.y = median)
+
+> 你也可以使用 ggplot() 的 aes() 包中的 color = gender。
+
+---
+
+## 用比率思考
+**如果我们需要检查这些值,或者需要进行进一步观察 以帮助我们了解男性和女性用户之间的差异**
+
+让我们回答问题 普通女性用户的好友数是男性用户好友数的多少倍？
 
 ### Thinking in Ratios
 Notes:
 
-***
+
+## 宽和长格式
+你还可以使用 tidyr 包重构数据。你可以在 PDF 版本的使用 R 进行的数据整理中查看示例，了解包的使用方法。
+
+以下为将数据框从长格式变为宽格式（整洁格式）的代码。我们鼓励你在查看以下解决方案之前，阅读 PDF 版本的“数据整理”，并且使用 tidyr 包编写代码。
+
+
+
+
+
+```{r}
+# only need to run this once library(tidyr)
+#install.packages("tidyr") 
+library('tidyr')
+wide_pf.fc_by_age_gender <- spread(subset(pf.fc_by_age_gender, select = c('gender', 'age','median_friend_count')), gender, median_friend_count)
+
+head(wide_pf.fc_by_age_gender)
+```
+
+tidyr 包和 reshape2 包都可以完成此任务，但用 tidyr 可能会容易一点。
+
+reshape2 入门（作者：Sean Anderson）
+
+宽格式和长格式之间的转换
+
+融合数据框
 
 ### Wide and Long Format
 Notes:
