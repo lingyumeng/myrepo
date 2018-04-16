@@ -10,14 +10,69 @@ Notes:
 Notes:
 
 ***
-
+## 第三个定性变量
+- 有时当我们进行探索性数据分析时，确实可能进入了死胡同
+- 让我们看看我们是否可以通过添加第三个变量进一步研究好友数与年龄之间的关系
+- 以前我们注意到女性用户平均比男性用户有更多好友数，我们可能怀疑这只是因为女性用户有不同的年龄分布或者也许年龄条件实际差异较大
+- 按性别绘制的年龄箱线图,我将使用统计汇总,将每个性别的平均值添加到箱线图,我们可以看到用 x 标记的平均值,使用形状 =4
+- 由于男性用户更年轻些,所以我们可能确实认为 简单地对男性与女性作比较，不足以捕捉其好友数的实质差异
 ### Third Qualitative Variable
 Notes:
 
 ```{r Third Qualitative Variable}
-ggplot(aes(x = gender, y = age),
-       data = subset(pf, !is.na(gender))) + geom_histogram()
+library(ggplot2)
+pf <- read.csv('pseudo_facebook.tsv', sep = '\t')
+
+names(pf)
+
+ggplot(aes(x = gender, y = age), data = subset(pf, !is.na(gender))) +
+  geom_boxplot() +
+  stat_summary(fun.y = mean, geom = 'point', shape = 4)
+
+
 ```
+- 让我们调查按年龄和性别的中位好友数中间的朋友
+- 当我运行此代码时，我们可以看到几乎任何地方的女性中位好友数都大于男性中位好友数，也存在一些例外；这包括对我们非常老的用户的这些噪声估计
+- 我使用这里有引号的老用户，因为我们对这些报道的年龄不太信任
+
+```{r}
+ggplot(aes(x = age, y = friend_count), data = subset(pf, !is.na(gender))) +
+  geom_line(aes(color = gender), stat = 'summary', fun.y = median)
+```
+
+重要事项！请注意，在较新版本的 dplyr (0.3.x+) 中，语法 %.% 已被弃用且替换为 %>%。课程视频中使用的是 %.%，但这会产生警告消息。如果你在回答中使用链接运算符，你应该使用 %>%。
+
+另一警告：0.4.0 版本的 dplyr 在汇总层上使用中间值函数时有一个错误，具体取决于被汇总的数据性质。你可能需要将数据转换为数值型（浮点型），以获得期望的结果，比如：median(as.numeric(var))。
+
+在使用 dplyr 包中的 group_by() 函数时，可以包含多个变量，以分拆数据框。
+
+new_groupings <- group_by(data, variable1, variable2) 
+或 
+using chained commands...使用这个命令： 
+new_data_frame <- data_frame %.% 
+  group_by(variable1, variable2) %.%
+
+summarise() 和 group_by() 的重复使用：汇总函数将自动删除一个级别的分组（它折叠的最后一组）。
+
+- 运行时删除一层分组(要删除性别层ungroup(gender))
+- 要过滤或划分数据子集(filter 图层)
+
+```{r}
+library(dplyr)
+pf.fc_by_age_gender <- pf %>%
+  filter(!is.na(gender)) %>%
+  group_by(age, gender) %>%
+  summarise(mean_friend_count = mean(friend_count),
+            median_friend_count = median(friend_count),
+            n = n()) %>%
+  ungroup(gender) %>%
+  arrange(age, gender)
+
+head(pf.fc_by_age_gender, 6)
+
+tail(pf.fc_by_age_gender, 6)
+```
+
 
 ***
 
