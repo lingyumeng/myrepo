@@ -24,13 +24,13 @@ Notes:
 
 由于男性用户更年轻些,所以我们可能确实认为 简单地对男性与女性作比较,不足以捕捉其好友数的实质差异
 
-=======
+
 - 有时当我们进行探索性数据分析时，确实可能进入了死胡同
 - 让我们看看我们是否可以通过添加第三个变量进一步研究好友数与年龄之间的关系
 - 以前我们注意到女性用户平均比男性用户有更多好友数，我们可能怀疑这只是因为女性用户有不同的年龄分布或者也许年龄条件实际差异较大
 - 按性别绘制的年龄箱线图,我将使用统计汇总,将每个性别的平均值添加到箱线图,我们可以看到用 x 标记的平均值,使用形状 =4
 - 由于男性用户更年轻些,所以我们可能确实认为 简单地对男性与女性作比较，不足以捕捉其好友数的实质差异
->>>>>>> 6518d3e25a9965b5bd86c6ae45b7b9561824b014
+
 ### Third Qualitative Variable
 Notes:
 
@@ -48,7 +48,7 @@ ggplot(aes(x = gender, y = age),
 ```
 
 让我们调查按年龄和性别的中位好友数中间的朋友
-=======
+
 
 ```{r}
 pf <- read.csv('pseudo_facebook.tsv', sep = '\t')
@@ -260,9 +260,6 @@ head(pf$year_joined, 20)
 ---
 # 切割一个变量
 
-
-
-
 ### Cut a Variable
 Notes:
 - year_join 变量是离散的，且范围很窄
@@ -289,25 +286,62 @@ pf$year_joined.bucket <- cut(pf$year_joined, c(2004, 2009, 2011,2012,2014))
 head(pf$year_joined.bucket)
 ```
 
-***
+---
+# 绘制在一起
+**目前已经做了两件事：**
+- 基于tenure创建year_joined变量
+- 基于year_joined创建分类变量year_joined.bucket(这样将用户分成不同组)
+
 
 ### Plotting it All Together
 Notes:
 
 ```{r Plotting it All Together}
+# 列表显示
+table(pf$year_joined.bucket, useNA = 'ifany')
 
+# 前期生成此图的代码
+ggplot(aes(x = age, y = friend_count), data = subset(pf, !is.na(gender))) +
+  geom_line(aes(color = gender), stat = 'summary', fun.y = median)
 ```
 
-***
+> Create a line graph of friend_count vs. age so that each year_joined.bucket is a line tracking the median user friend_count across age. This means you should have four different lines on your plot.
+
+> You should subset the data to exclude the users whose year_joined.bucket is NA.
+
+```{r}
+ggplot(aes(x = age, y = friend_count), data = subset(pf, !is.na(year_joined.bucket))) +
+  geom_line(aes(color = year_joined.bucket), stat = 'summary', fun.y = median)
+```
+
+---
+# 绘制总均值
+
+> (1) Add another geom_line to code below
+ to plot the grand mean of the friend count vs age.
+
+> (2) Exclude any users whose year_joined.bucket is NA.
+
+> (3) Use a different line type for the grand mean.
+
+> As a reminder, the parameter linetype can take the values 0-6:
+
+> 0 = blank, 1 = solid, 2 = dashed
+> 3 = dotted, 4 = dotdash, 5 = longdash
+> 6 = twodash
 
 ### Plot the Grand Mean
 Notes:
 
 ```{r Plot the Grand Mean}
-
+ggplot(aes(x = age, y = friend_count), data = subset(pf, !is.na(year_joined.bucket))) +
+  geom_line(aes(color = year_joined.bucket), stat = 'summary', fun.y = mean) +
+  geom_line(stat = 'summary', fun.y = mean, linetype = 2)
 ```
 
-***
+---
+# 好友率
+
 
 ### Friending Rate
 Notes:
