@@ -342,28 +342,40 @@ ggplot(aes(x = age, y = friend_count), data = subset(pf, !is.na(year_joined.buck
 ---
 # 好友率
 
+- 由于调节加入了年份分组之后继续保持一致走势，可以看出观测值不只是由于需要时间积累好友的人为产物
+
+现在换种角度度看待这种关系：可以考虑使用期与好友数的比例；
 
 ### Friending Rate
 Notes:
 
 ```{r Friending Rate}
-
+with(subset(pf, tenure >= 1), summary(friend_count / tenure))
 ```
-
-***
+What is the median friend rate?
+0.22
+What is the maximum friend rate?
+417
+---
+# 申请好友数
+> Create a line graph of mean of friendships_initiated per day (of tenure) vs. tenure colored by year_joined.bucket.
+> You need to make use of the variables tenure,friendships_initiated, and year_joined.bucket.
+> You also need to subset the data to only consider user with at leastone day of tenure.
 
 ### Friendships Initiated
 Notes:
 
-What is the median friend rate?
-
-What is the maximum friend rate?
-
 ```{r Friendships Initiated}
-
+ggplot(aes(x = tenure, y = friendships_initiated/tenure), data = subset(pf, tenure >= 1)) +
+  geom_line(aes(color = year_joined.bucket), stat = 'summary', fun.y = mean)
 ```
+- 看来用户使用时间越长，新建立的友谊越少 
 
-***
+---
+# 偏差方差折衷
+
+- 由于我们为每个可能的使用时间x值绘制y的平均值，存在许多噪音；
+- 我们可以通过分别弯曲x轴调整该噪音（弯曲宽度）
 
 ### Bias-Variance Tradeoff Revisited
 Notes:
@@ -396,7 +408,14 @@ ggplot(aes(x = 90 * round(tenure / 90), y = friendships_initiated / tenure),
 
 ```
 
-***
+
+```{r}
+ggplot(aes(x=tenure, y = friendships_initiated / tenure),
+       data = subset(pf, tenure > 1)) +
+    geom_smooth(aes(color = year_joined.bucket))
+```
+- 我们仍然会看到新好友数随着使用时间的增加而下降
+---
 
 ### Sean's NFL Fan Sentiment Study
 Notes:
