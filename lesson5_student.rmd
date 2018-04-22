@@ -416,25 +416,62 @@ ggplot(aes(x=tenure, y = friendships_initiated / tenure),
 ```
 - 我们仍然会看到新好友数随着使用时间的增加而下降
 ---
+# Sean 的 NFL 球迷情绪研究
+
 
 ### Sean's NFL Fan Sentiment Study
 Notes:
 
-***
+---
+
+# 酸奶数据集简介
+
+下载[酸奶数据集](https://s3.amazonaws.com/udacity-hosted-downloads/ud651/yogurt.csv).
+[贝叶斯统计学与营销](http://www.perossi.org/home/bsm-1)包含该数据集及其案例研究。
+
+引用的有关酸奶数据集的论文原稿由 Kim、Jaehwan、Greg M. Allenby 和 Peter E. Rossi 撰写。“构建多样性消费者需求模型”，《营销科学》21.3 (2002)：第 229 至 250 页。
+
+特别感谢 Allenby 教授帮助我们理解这一数据集。
+
+请参阅[消费者需求的面板数据离散选择模型](http://www.nuff.ox.ac.uk/Economics/papers/2013/Panel%20Data%20Demand%20-%20June%2020,%202013.pdf)，了解更多关于扫描器数据的信息。
 
 ### Introducing the Yogurt Data Set
 Notes:
 
-***
+---
+# 重访直方图
+- 下载数据，并读入数据（read.csv）
+- 注意一件事大部分变量都是整数；需要将其中一个变量转换为因子factor
+- 将ID变量转换为因子
+- 完成以上步骤，创建酸奶价格直方图
 
 ### Histograms Revisited
 Notes:
 
 ```{r Histograms Revisited}
+?read.csv
+
+yo = read.csv('yogurt.csv', header = TRUE, sep = ",")
+str(yo)
+
+# change id from an int to a factor
+yo$id = factor(yo$id)
+str(yo)
 
 ```
 
-***
+```{r}
+# create yo's price Histogrames
+ggplot(aes(x = price), data = yo) +
+  geom_histogram(fill = I('#F79460'))
+
+qplot(data = yo, x = price, fill = I('#F79000'), binwidth = 10)
+```
+- 此价格严重离散
+- 其中有许多观测值，但相邻价格没有观测值
+- 有些购买涉及的价格要低得多，如果我们对价格敏感度感兴趣，我们绝对要考虑这些价格的变化是什么样的
+- 现在还需要注意是否我们选择了可能掩盖这种离散性的不同组距（eg：binwidth=10 将在图中错过相邻价格一些空白空间观测）
+---
 
 ### Number of Purchases
 Notes:
