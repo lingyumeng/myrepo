@@ -472,50 +472,130 @@ qplot(data = yo, x = price, fill = I('#F79000'), binwidth = 10)
 - 有些购买涉及的价格要低得多，如果我们对价格敏感度感兴趣，我们绝对要考虑这些价格的变化是什么样的
 - 现在还需要注意是否我们选择了可能掩盖这种离散性的不同组距（eg：binwidth=10 将在图中错过相邻价格一些空白空间观测）
 ---
+# 购买数量
+
+- 看数据的五分位数可以注意到，一条离散性线索是第75%分位与最大值相同
+- 通过调查数据集中度，通过查看多少不同种价格看这种离散性（大约20种）
+
 
 ### Number of Purchases
 Notes:
 
 ```{r Number of Purchases}
-
+summary(yo)
+unique(yo$price)
+length(unique(yo$price))
+table(yo$price)
 ```
 
-***
+**让我们弄清楚家庭在给定购买时机购买多少八盎司酸奶**
+- 为了回答这问题，需要将不同口味酸奶账户合并成一个变量
+- 为解决问题需要利用新函数-传递函数
+
+ > Create a new variable called all.purchases, which gives the total counts of yogurt for each observation or household.
+ 
+> One way to do this is using the transform function. You can look up the function transform and run the examples of code at the bottom of the documentation to figure out what it does.
+
+```{r}
+?transform
+head(yo, 10)
+
+yo <- transform(yo, all.purchases = strawberry+blueberry+pina.colada+plain+mixed.berry)
+
+str(yo)
+```
+
+
+
+---
+# 随时间变化的价格
+- 通过直方图可以看到大多数家庭一次购买一份或两份酸奶
+- 为了深入研究酸奶价格和家庭行为；让我们更详细地研究随时间推移的价格变化
 
 ### Prices over Time
 Notes:
 
 ```{r Prices over Time}
-
+ggplot(aes(x=all.purchases), data = yo) +
+  geom_histogram(fill = "#9232ae", binwidth = 1) 
 ```
 
-***
+> Create a scatterplot of price vs time. This will be an example of a time series plot. Resolve overplotting issues by using techniques you learned in Lesson 4.
+
+```{r}
+ggplot(aes(x = time, y = price), data = yo) +
+  geom_point(alpha=0.05)
+
+ggplot(aes(x=time, y = price), data = yo) +
+  geom_jitter(alpha=0.15, shape = 21, fill = "#65ce12")
+```
+ 
+---
+# 采样观测值
+
 
 ### Sampling Observations
 Notes:
 
 ***
+# 查看家庭样本
+- 首先我们应该使用设置种子(set seed function)实现这种目标
 
 ### Looking at Samples of Households
 
 ```{r Looking at Sample of Households}
+set.seed(4230)
+sample.ids <- sample(levels(yo$id), 16)
 
+ggplot(aes(x=time, y=price), data = subset(yo, id %in% sample.ids)) +
+  facet_wrap( ~ id) +
+  geom_line() +
+  geom_point(aes(size = all.purchases), pch = 1)
 ```
 
-***
+>注意：x %in% y 返回一个长度与 x 相同的逻辑（布尔）向量，该向量指出 x 中的每一个条目是否都出现在 y 中。也就是说，对于 x 中的每一个条目，该向量都会检查这一条目是否也出现在 y 中。
+
+>这样，我们就能将数据子集化，从而获得样本中住户的所有购买时机了。然后，我们通过样本 ID 创建价格与时间的散点图和分面。
+
+>在绘制散点时，使用 pch 或 shape 参数来指定符号。向下滚动至 QuickR 图形参数的“绘制散点”部分。
+
+```{r}
+set.seed(3297)
+sample.ids <- sample(levels(yo$id), 16)
+
+ggplot(aes(x=time, y=price), data = subset(yo, id %in% sample.ids)) +
+  facet_wrap( ~ id) +
+  geom_line() +
+  geom_point(aes(size = all.purchases), pch = 2)
+```
+---
+# 截面数据的限制
+**总体思想在于如果我们有随时间推移的观察值，我们可以通过数据集中的基本单元、案例或个人来分类**
 
 ### The Limits of Cross Sectional Data
 Notes:
 
-***
+---
+# 多个变量
+- 目前为止所做的分析，专注于一些预先选择的变量关系或者感兴趣的问题
+- 然后我们使用EDA让选择的变量发言
 
 ### Many Variables
 Notes:
 
-***
+---
+# 散点图矩阵
+
 
 ### Scatterplot Matrix
 Notes:
+
+```{r}
+#install.packages(GGally)
+library(GGally)
+
+```
+
 
 ***
 
