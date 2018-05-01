@@ -577,33 +577,64 @@ Notes:
 
 ---
 # 多个变量
-- 目前为止所做的分析，专注于一些预先选择的变量关系或者感兴趣的问题
-- 然后我们使用EDA让选择的变量发言
+- 目前为止所做的分析，专注于一些预先选择的变量关系或者感兴趣的问题，然后我们使用EDA让选择的变量发言
+- 最近分析两个变量之间的关系时，我们期待在分析中加入更多变量，以便对其改进
+  - eg：通过观察这些其他变量值的特定关系是否一致，在选择第三或第四个变量进行绘图时，我们依靠我们的领域知识，但我们通常可能需要可视化或汇总，以帮助我们识别这些辅助变量
+  - 在一些分析中可能计划使用大量变量，也许计划预测一个变量有10 个20 个或数百个其他变量或者我们需要将一大组变量汇总到较小尺寸组；或许我们寻找一大组变量之间有趣的关系；在这些情况下我们可以通过立刻产生许多图表或比较帮助我们加快我们的探索性数据分析
 
 ### Many Variables
 Notes:
 
 ---
 # 散点图矩阵
+我们使用一个工具自动创建大量散点图，称为**散点图矩阵**
 
+- 散点图很有效果，但不适用所有变量类型-例如分类变量，因此可以创建其他类型的可视化代替散点图，如当变量为分类变量时的箱线图或直方图
 
+---
+使用相同的数据样本，发起的好友请求和好友数之间的相关系数是什么？
+
+使用相同的数据样本，年龄和移动端点赞之间的相关系数是什么？
+
+哪种类型的图在散点图矩阵的对角线以下？哪种类型的图是为包括性别的变量对而创建的？
+
+这是 PDF 版本的散点图矩阵。
+
+你需要运行代码 install.packages('GGally') 来安装包，以创建此特定的散点图矩阵。
+
+如果图形需要很长时间才能呈现，或者如果你想查看散点图矩阵的其中一部分，你只需检查少量的变量。你可以使用以下代码或选择较少的变量。我们建议将性别（第 6 个变量）包含在内！ 
+
+pf_subset <- pf[ , c(2:7)] 
+
+你可能还会发现：变量标签是在散点图矩阵的外边缘上，而非对角线上。如果你希望标签在对角线上，你可以在 ggpairs 命令中设置 axisLabels = 'internal' 参数。
+---
 ### Scatterplot Matrix
 Notes:
 
 ```{r}
-#install.packages(GGally)
+#install.packages('GGally')
 library(GGally)
+
+# set the seed for reproducible results
+
+set.seed(1836)
+pf_subset <- pf[,c(2:15)]
+names(pf_subset)
+ggpairs(pf_subset[sample.int(nrow(pf_subset), 1000), ])
 
 ```
 
 
-***
+---
+# 更多变量
 
 ### Even More Variables
 Notes:
 
-***
-
+---
+# 热图
+我们为该课程制做的最后一张图是称为热图
+- 对于我的数据集，我们需要显示基因与样本的每个组合，基因表达差异和基线样品
 ### Heat Maps
 Notes:
 
@@ -613,6 +644,7 @@ colnames(nci) <- c(1:64)
 ```
 
 ```{r}
+library(reshape2)
 nci.long.samp <- melt(as.matrix(nci[1:200,]))
 names(nci.long.samp) <- c("gene", "case", "value")
 head(nci.long.samp)
@@ -623,8 +655,13 @@ ggplot(aes(y = gene, x = case, fill = value),
   scale_fill_gradientn(colours = colorRampPalette(c("blue", "red"))(100))
 ```
 
+[R 中的融合数据框](http://www.r-bloggers.com/melt/)
 
-***
+[微阵列/基因表达数据](https://s3.amazonaws.com/udacity-hosted-downloads/ud651/nci.tsv)
+
+---
+# 分析三个或更多变量
+
 
 ### Analyzing Three of More Variables
 Reflection:
