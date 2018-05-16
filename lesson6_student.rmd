@@ -298,12 +298,13 @@ str(mtcars)
 
 ```
 
-***
+---
 
 ### Other Qualitative Factors
 Notes:
 
-***
+---
+# 价格与克拉和净度
 
 ### Price vs. Carat and Clarity
 
