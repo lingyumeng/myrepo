@@ -305,16 +305,19 @@ Notes:
 
 ---
 # 价格与克拉和净度
-
+- 我们来观察 净度 切割 或颜色是否可以解释价格的变化
+- 开始先考察净度，下面代码可视化 ==价格与克拉之间的关系进行调整，按着净度显示不同点的颜色==
 ### Price vs. Carat and Clarity
 
 Alter the code below.
 ```{r Price vs. Carat and Clarity}
 # install and load the RColorBrewer package
-install.packages('RColorBrewer')
+#install.packages('RColorBrewer')
 library(RColorBrewer)
 
-ggplot(aes(x = carat, y = price), data = diamonds) + 
+
+
+ggplot(aes(x = carat, y = price, colour = clarity),  data = diamonds) + 
   geom_point(alpha = 0.5, size = 1, position = 'jitter') +
   scale_color_brewer(type = 'div',
     guide = guide_legend(title = 'Clarity', reverse = T,
@@ -326,12 +329,27 @@ ggplot(aes(x = carat, y = price), data = diamonds) +
   ggtitle('Price (log10) by Cube-Root of Carat and Clarity')
 ```
 
-***
+---
+>> ggplot2
+
+>> scale_colour_brewer: http://docs.ggplot2.org/current/scale_brewer.html
+>> ColorBrewer 调色板和安全色: 
+>> http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#palettes-color-brewer
+>> Legends: http://www.cookbook-r.com/Graphs/Legends_(ggplot2)/
+---
+
+---
+# 净度与价格
+
+将颜色添加到我们图像中后，看起来的确能够说明价格变化的很多其他方面，
+- 我们将克拉重量保持常量； 观察这副图的一个部分，可以看到净度较低的钻石，始终比净度更高的钻石要便宜
 
 ### Clarity and Price
 Response:
 
-***
+---
+# 价格与克拉和切工
+
 
 ### Price vs. Carat and Cut
 
