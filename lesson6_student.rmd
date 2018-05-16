@@ -92,14 +92,15 @@ Notes:
 
 ```{r ggpairs Function}
 # install these if necessary
-install.packages('GGally')
-install.packages('scales')
-install.packages('memisc')
-install.packages('lattice')
-install.packages('MASS')
-install.packages('car')
-install.packages('reshape')
-install.packages('plyr')
+
+#install.packages('GGally')
+#install.packages('scales')
+#install.packages('memisc')
+#install.packages('lattice')
+#install.packages('MASS')
+#install.packages('car')
+#install.packages('reshape')
+#install.packages('plyr')
 
 # load the ggplot graphics package and the others
 library(ggplot2)
@@ -239,23 +240,62 @@ ggplot(aes(carat, price), data = diamonds) +
 
 [函数的基本结构](https://www.youtube.com/watch?v=Z1wB1rHAYzQ&list=PLOU2XLYxmsIK9qQfztXeybpHvru-TrqAP)
 
-***
+---
+# 复习过度绘制
+
+- 数据中多个点具有相同的值，这是通常是由于四舍五入造成的；
+- 我们在克拉和价格上运行上运行table命令，然后将进行排序，让最高的值显示在前面，我们只是观察前6个，这是head函数的默认值
+- 结果显示价格或克拉，第二行是这些值的分别个数；
+- 可以看出确实存在一些高值会导致相当数量的图形叠加，使用这些数据将会出现严重的图形叠加；
+- 即使按照变量的关系进行绘图，这样会掩盖我们的数据的密度和稀疏度，这点真的很重要；
+- ==处理办法是通过抖动jitter 和 添加透明度 让点变小些；在ggplot中 方法是使用alpha 参数
+
+
+```{r Sort and Head Tables}
+head(sort(table(diamonds$carat), decreaing = T))
+head(sort(table(diamonds$price), decreasing = T))
+```
+
+---
+提示 1：在文档中查找 geom_point()。 
+提示 2：你需要为 geom_point() 中的 alpha、size 和 position 调整参数。 
+提示 3：要抖动散点，请将 position 设置为等于“jitter”。
+---
+
 
 ### Overplotting Revisited
 
-```{r Sort and Head Tables}
-
-```
-
 
 ```{r Overplotting Revisited}
+?geom_point
+str(diamonds)
 ggplot(aes(carat, price), data = diamonds) + 
-  geom_point() + 
+  geom_point(alpha=0.5, size = 0.75, color = "#93ae12", position = position_jitter(h=0)) + 
   scale_x_continuous(trans = cuberoot_trans(), limits = c(0.2, 3),
                      breaks = c(0.2, 0.5, 1, 2, 3)) + 
   scale_y_continuous(trans = log10_trans(), limits = c(350, 15000),
                      breaks = c(350, 1000, 5000, 10000, 15000)) +
   ggtitle('Price (log10) by Cube-Root of Carat')
+
+ggplot(aes(carat, price), data = diamonds) + 
+  geom_point(alpha=0.5, size = 0.75, color = "#d19a32", position = 'jitter') + 
+  scale_x_continuous(trans = cuberoot_trans(), limits = c(0.2, 3),
+                     breaks = c(0.2, 0.5, 1, 2, 3)) + 
+  scale_y_continuous(trans = log10_trans(), limits = c(350, 15000),
+                     breaks = c(350, 1000, 5000, 10000, 15000)) +
+  ggtitle('Price (log10) by Cube-Root of Carat')
+```
+```{r}
+p <- ggplot(mtcars, aes(wt, mpg))
+p + geom_point()
+
+# Add aesthetic mappings
+p + geom_point(aes(colour = factor(cyl)))
+p + geom_point(aes(shape = factor(cyl)))
+p + geom_point(aes(size = qsec))
+
+str(mtcars)
+
 ```
 
 ***
