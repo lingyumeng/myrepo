@@ -315,8 +315,6 @@ Alter the code below.
 #install.packages('RColorBrewer')
 library(RColorBrewer)
 
-
-
 ggplot(aes(x = carat, y = price, colour = clarity),  data = diamonds) + 
   geom_point(alpha = 0.5, size = 1, position = 'jitter') +
   scale_color_brewer(type = 'div',
@@ -348,26 +346,31 @@ ggplot(aes(x = carat, y = price, colour = clarity),  data = diamonds) +
 Response:
 
 ---
-# 价格与克拉和切工
+# 价格与克拉和切割
+
+现在我们观察切割cut，更改代码，按切割cut对点着色
 
 
 ### Price vs. Carat and Cut
 
 Alter the code below.
 ```{r Price vs. Carat and Cut}
-ggplot(aes(x = carat, y = price, color = clarity), data = diamonds) + 
+ggplot(aes(x = carat, y = price, color = cut), data = diamonds) + 
   geom_point(alpha = 0.5, size = 1, position = 'jitter') +
   scale_color_brewer(type = 'div',
-                     guide = guide_legend(title = 'Clarity', reverse = T,
+                     guide = guide_legend(title = 'Cut', reverse = T,
                                           override.aes = list(alpha = 1, size = 2))) +  
   scale_x_continuous(trans = cuberoot_trans(), limits = c(0.2, 3),
                      breaks = c(0.2, 0.5, 1, 2, 3)) + 
   scale_y_continuous(trans = log10_trans(), limits = c(350, 15000),
                      breaks = c(350, 1000, 5000, 10000, 15000)) +
-  ggtitle('Price (log10) by Cube-Root of Carat and Clarity')
+  ggtitle('Price (log10) by Cube-Root of Carat and Cut')
 ```
 
-***
+---
+
+# 价格与克拉和颜色
+最后，我们使用钻石颜色color作为我们绘图中的颜色，用钻石颜色对点着色
 
 ### Cut and Price
 Response:
@@ -378,24 +381,53 @@ Response:
 
 Alter the code below.
 ```{r Price vs. Carat and Color}
-ggplot(aes(x = carat, y = price, color = cut), data = diamonds) + 
+ggplot(aes(x = carat, y = price, color = color), data = diamonds) + 
   geom_point(alpha = 0.5, size = 1, position = 'jitter') +
   scale_color_brewer(type = 'div',
-                     guide = guide_legend(title = Cut, reverse = T,
+                     guide = guide_legend(title = 'Color', reverse = T,
                                           override.aes = list(alpha = 1, size = 2))) +  
   scale_x_continuous(trans = cuberoot_trans(), limits = c(0.2, 3),
                      breaks = c(0.2, 0.5, 1, 2, 3)) + 
   scale_y_continuous(trans = log10_trans(), limits = c(350, 15000),
                      breaks = c(350, 1000, 5000, 10000, 15000)) +
-  ggtitle('Price (log10) by Cube-Root of Carat and Cut')
+  ggtitle('Price (log10) by Cube-Root of Carat and color')
+```
+```{r}
+# 去掉图例中的反参数
+
+ggplot(aes(x = carat, y = price, color = color), data = diamonds) + 
+  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  scale_color_brewer(type = 'div',
+                     guide = guide_legend(title = 'Color', reverse = FALSE,
+                                          override.aes = list(alpha = 1, size = 2))) +  
+  scale_x_continuous(trans = cuberoot_trans(), limits = c(0.2, 3),
+                     breaks = c(0.2, 0.5, 1, 2, 3)) + 
+  scale_y_continuous(trans = log10_trans(), limits = c(350, 15000),
+                     breaks = c(350, 1000, 5000, 10000, 15000)) +
+  ggtitle('Price (log10) by Cube-Root of Carat and color')
+
 ```
 
-***
+---
 
 ### Color and Price
 Response:
+- 从D到J所有颜色等级之间的差异对于肉眼基本上无法觉察，但是我们在价格标签上的确看到颜色差异
 
-***
+---
+# R 中的线性模型
+
+在R中，我们==可以使用lm函数创建模型==，
+- 我们需要按照y~x格式提供一个公式， y是结果变量outcome variable, x是解释变量explanatory variable;
+
+```math
+lm(y~x)
+
+```
+
+- 以下哪个公式可用于lm函数？
+[image](https://s3.cn-north-1.amazonaws.com.cn/u-img/862498763)
+
 
 ### Linear Models in R
 Notes:
