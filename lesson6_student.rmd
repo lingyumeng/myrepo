@@ -424,17 +424,41 @@ Response:
 lm(y~x)
 
 ```
-
-- 以下哪个公式可用于lm函数？
-[image](https://s3.cn-north-1.amazonaws.com.cn/u-img/862498763)
+```{r}
+ggplot(aes(x = carat, y = price), data = diamonds) + 
+  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  scale_x_continuous(trans = cuberoot_trans(), limits = c(0.2, 3),
+                     breaks = c(0.2, 0.5, 1, 2, 3)) + 
+  scale_y_continuous(trans = log10_trans(), limits = c(350, 15000),
+                     breaks = c(350, 1000, 5000, 10000, 15000)) +
+  stat_smooth(method = 'lm') +
+  ggtitle('Price (log10) by Cube-Root of Carat')
+```
 
 
 ### Linear Models in R
 Notes:
 
 Response:
+- 以下哪个公式可用于lm函数？
+[image](https://s3.cn-north-1.amazonaws.com.cn/u-img/862498763)
 
-***
+**log(price) ~ carat^(1/3)**
+
+---
+
+# 构建线性模型
+
+现在我们来为价格建立线性模型，我们将第一个模型保存在名叫ml的变量里
+- 注意到如何在每个变量周围使用I Wrapper；本例中它告诉R使用I函数内部的表达式来转换变量，然后再将其用于递归regression，这样就替代了引导R来解释公式中的这些符号，以构成递归的设计矩阵的过程。
+- 也可以更新以前的模型，使用这个语法在递归中添加克拉变量
+- 真实的函数关系当然并非carat立方根这么简单，所以我们在预测价格的模型中添加了一个简单的克拉线性函数
+- 我们可以继续通过添加更多变量来建立更复杂的模型，添加切割cut，即使我们并不期望其对价格有很大影响
+- 接下来将颜色color添加到第四个模型；净度clarity添加到第五个模型
+
+运行代码时可以看到，我们得到了非常漂亮的R平方值，我们使用是个C考虑了价格中的几乎全部四个变化
+
+如果我们想知道一枚钻石的价格是否合理，现在可以使用这个模型
 
 ### Building the Linear Model
 Notes:
@@ -451,7 +475,9 @@ mtable(m1, m2, m3, m4, m5)
 Notice how adding cut to our model does not help explain much of the variance
 in the price of diamonds. This fits with out exploration earlier.
 
-***
+---
+# 模型问题
+
 
 ### Model Problems
 Video Notes:
