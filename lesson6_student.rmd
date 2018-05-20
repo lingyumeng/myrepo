@@ -456,7 +456,7 @@ Response:
 - 我们可以继续通过添加更多变量来建立更复杂的模型，添加切割cut，即使我们并不期望其对价格有很大影响
 - 接下来将颜色color添加到第四个模型；净度clarity添加到第五个模型
 
-运行代码时可以看到，我们得到了非常漂亮的R平方值，我们使用是个C考虑了价格中的几乎全部四个变化
+运行代码时可以看到，我们得到了非常漂亮的R平方值，我们使用是四个C考虑了价格中的几乎全部四个变化
 
 如果我们想知道一枚钻石的价格是否合理，现在可以使用这个模型
 
@@ -478,9 +478,19 @@ in the price of diamonds. This fits with out exploration earlier.
 ---
 # 模型问题
 
+**我们的模型是：**
+==价格的对数 等于0.415 加 9.144乘以克拉数的立方根 减去克拉数乘以1.903 加上一系列系数（每个系数乘以切割数cut） 加上一系列系数乘以颜色color 再加上一系列系数乘以净度clarity, 最后加上一个误差项==
+
+```math
+ln(price) = 0.415 + 9.144*\sqrt[3]{carat} - 1.093*carat +(... * cut + ... *color + ... *clarity) + \varepsilon 
+```
 
 ### Model Problems
 Video Notes:
+- 首先 我们的数据从2008-2014，不仅要考虑通胀，而且钻石市场也绝对是今非昔比
+- 实际上当我用模型拟合此数据，并预测市场上钻石的价格时，预测结果一直是太低；在进行更深的探究后 我发现全球钻石市场情况很不好，在2008年因全球金融危机 价格一落千丈，从那以后价格有所上升，至少对于批发抛光钻石 每年上升大约6%复合年增长率
+  - 在中国快速增长的，购买订婚钻戒的夫妻数量，也可以解释这种增长
+- 最后 观察价格范围内的数据以后，我意识到钻石价格自2008年以来，在不同的克拉大小之间增长并不均匀，意味着我最初估计的模型，不能简单地用通胀进行调整
 
 Research:
 (Take some time to come up with 2-4 problems for the model)
@@ -488,19 +498,44 @@ Research:
 
 Response:
 
-***
+让我们将模型放到更大的环境中进行讨论。假设数据没有遭到损坏，而且我们没有过度违反线性回归的一些关键假设（例如违反 [IID 假设](http://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables)，即数据集中有大量重复的观测值），那些，该模型会有哪些问题？在使用该模型时，还有什么是我们应该考虑的？
+
+不要急着回答这个问题，对钻石市场做一些定性研究。查看以下链接，开始研究吧。
+
+[近几年的钻石价格s](http://www.pricescope.com/diamond-prices/diamond-prices-chart)
+
+[2013年全球钻石报告](http://www.bain.com/publications/articles/global-diamond-report-2013.aspx)
+
+如果你想了解更多关于线性模型以及如何解释回归系数的信息，请参阅以下文章。
+
+R Bloggers 上的解释 [R 中的回归系数](http://www.r-bloggers.com/interpreting-regression-coefficient-in-r/?utm_source=feedburner&utm_medium=email&utm_campaign=Feed%3A+RBloggers+%28R+bloggers%29)
+
+Analysis Factor 博客上的[解释回归系数](http://www.theanalysisfactor.com/interpreting-regression-coefficients/)
+
+[拟合与解释线性模型](http://blog.yhathq.com/posts/r-lm-summary.html)（作者：ŷhat）
+
+Stats StackExchange 上的[线性模型中因子系数的另一种解释](http://stats.stackexchange.com/a/24256)
+
+[供给下降与需求增长：上海夫妇喜爱钻戒](http://diamonds.blogs.com/diamonds_update/diamond-prices/)
+
+
+---
+# 更大、更好的数据集
 
 ### A Bigger, Better Data Set
 Notes:
-
+我能够将 Python 脚本放到一起来获得当前钻石价格数据
 ```{r A Bigger, Better Data Set}
-install.package('bitops')
-install.packages('RCurl')
+#install.package('bitops')
+#install.packages('RCurl')
 library('bitops')
 library('RCurl')
 
-diamondsurl = getBinaryURL("https://raw.github.com/solomonm/diamonds-data/master/BigDiamonds.Rda")
-load(rawConnection(diamondsurl))
+#diamondsurl = getBinaryURL("https://raw.github.com/solomonm/diamonds-data/master/BigDiamonds.Rda")
+#load(rawConnection(diamondsurl))
+load("BigDiamonds.rda")
+
+str(diamondsbig)
 ```
 
 The code used to obtain the data is available here:
@@ -510,11 +545,19 @@ https://github.com/solomonm/diamonds-data
 Notes:
 
 ```{r Building a Model Using the Big Diamonds Data Set}
-
+m1 <- lm(I(log(price)) ~ I(carat^(1/3)), data = subset(diamondsbig, price<10000 &cert == "GIA"))
+m2 <- update(m1, ~ . + carat)
+m3 <- update(m2, ~ . + cut)
+m4 <- update(m3, ~ . + color)
+m5 <- update(m4, ~ . + clarity)
+mtable(m1,m2,m3,m4,m5)
 ```
 
 
-***
+---
+# 预测
+- 经过这些工作以后 我们来使用模型进行预测
+- 我们需要对模型的结果取幂
 
 ## Predictions
 
@@ -527,9 +570,22 @@ thisDiamond = data.frame(carat = 1.00, cut = "V.Good",
                          color = "I", clarity="VS1")
 modelEstimate = predict(m5, newdata = thisDiamond,
                         interval="prediction", level = .95)
+# prediction price
+exp(modelEstimate)
 ```
 
 Evaluate how well the model predicts the BlueNile diamond's price. Think about the fitted point estimate as well as the 95% CI.
+```{r}
+dat = data.frame(m4$model, m4$residuals) 
+
+with(dat, sd(m4.residuals)) 
+
+with(subset(dat, carat > .5 & carat < 1.5), sd(m4.residuals)) 
+
+dat$resid <- as.numeric(dat$m4.residuals)
+ggplot(aes(y = resid, x = round(carat, 2)), data = dat) + 
+  geom_line(stat = "summary", fun.y = sd)
+```
 
 ***
 
